@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Registros</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Gestión de Registros</h2>
+    <form id="registroForm">
+        <input type="hidden" id="id" />
+        <label>Nombre:</label>
+        <input type="text" id="nombre" required>
+        <label>Duración:</label>
+        <input type="text" id="duracion" required>
+        <label>Fecha de Inicio:</label>
+        <input type="date" id="fecha_inicio" required>
+        <label>Fecha Final:</label>
+        <input type="date" id="fecha_final" required>
+        <label>Descripción:</label>
+        <input type="text" id="descripcion" required>
+        <button type="submit">Guardar</button>
+    </form>
+
+    <h3>Lista de Registros</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Duración</th>
+                <th>Fecha de Inicio</th>
+                <th>Fecha Final</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="registroTableBody"></tbody>
+    </table>
+
+    <script>
+        const registroForm = document.getElementById('registroForm');
+        const registroTableBody = document.getElementById('registroTableBody');
+        let registros = [];
+        let editId = null;
+
+        // Función para actualizar la vista de la tabla
+        function actualizarTabla() {
+            registroTableBody.innerHTML = '';
+            registros.forEach((registro) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${registro.id}</td>
+                    <td>${registro.nombre}</td>
+                    <td>${registro.duracion}</td>
+                    <td>${registro.fecha_inicio}</td>
+                    <td>${registro.fecha_final}</td>
+                    <td>${registro.descripcion}</td>
+                    <td>
+                        <button onclick="editarRegistro(${registro.id})">Editar</button>
+                        <button onclick="borrarRegistro(${registro.id})">Borrar</button>
+                    </td>
+                `;
+                registroTableBody.appendChild(tr);
+            });
+        }
+
+        // Función para guardar o actualizar registro
+        function guardarRegistro(event) {
+            event.preventDefault();
+            const nombre = document.getElementById('nombre').value;
+            const duracion = document.getElementById('duracion').value;
+            const fecha_inicio = document.getElementById('fecha_inicio').value;
+            const fecha_final = document.getElementById('fecha_final').value;
+            const descripcion = document.getElementById('descripcion').value;
+
+            if (editId !== null) {
+                const index = registros.findIndex(registro => registro.id === editId);
+                registros[index] = { id: editId, nombre, duracion, fecha_inicio, fecha_final, descripcion };
+                editId = null;
+            } else {
+                const newId = registros.length ? registros[registros.length - 1].id + 1 : 1;
+                registros.push({ id: newId, nombre, duracion, fecha_inicio, fecha_final, descripcion });
+            }
+
+            registroForm.reset();
+            actualizarTabla();
+        }
+
+        // Función para editar un registro
+        function editarRegistro(id) {
+            const registro = registros.find(registro => registro.id === id);
+            document.getElementById('id').value = registro.id;
+            document.getElementById('nombre').value = registro.nombre;
+            document.getElementById('duracion').value = registro.duracion;
+            document.getElementById('fecha_inicio').value = registro.fecha_inicio;
+            document.getElementById('fecha_final').value = registro.fecha_final;
+            document.getElementById('descripcion').value = registro.descripcion;
+            editId = id;
+        }
+
+        // Función para borrar un registro
+        function borrarRegistro(id) {
+            registros = registros.filter(registro => registro.id !== id);
+            actualizarTabla();
+        }
+
+        // Evento al enviar el formulario
+        registroForm.addEventListener('submit', guardarRegistro);
+
+        // Cargar tabla al iniciar
+        actualizarTabla();
+    </script>
+
+</body>
+</html>
